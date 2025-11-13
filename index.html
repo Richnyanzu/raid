@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RAID – Verständlich erklärt</title>
+  <style>
+    :root{
+      --bg:#0f172a;        /* Slate-900 */
+      --panel:#111827;     /* Gray-900 */
+      --text:#e5e7eb;      /* Gray-200 */
+      --muted:#9ca3af;     /* Gray-400 */
+      --accent:#22c55e;    /* Green-500 */
+      --warn:#f59e0b;      /* Amber-500 */
+      --danger:#ef4444;    /* Red-500 */
+      --card:#1f2937;      /* Gray-800 */
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;line-height:1.6}
+    a{color:var.accent}
+    header{
+      position:sticky;top:0;z-index:10;
+      backdrop-filter:saturate(180%) blur(8px);
+      background:rgba(17,24,39,.7); /* Gray-900 alpha */
+      border-bottom:1px solid #1f2937;
+    }
+    .nav{
+      max-width:1100px;margin:0 auto;padding:12px 20px;
+      display:flex;gap:18px;align-items:center;justify-content:space-between
+    }
+    .nav a{color:var(--text);text-decoration:none;font-weight:600}
+    .nav .links{display:flex;gap:16px;flex-wrap:wrap}
+    .btn{
+      display:inline-block;padding:10px 14px;border-radius:10px;
+      background:var(--accent);color:#052e16;font-weight:700;text-decoration:none
+    }
+    .hero{
+      max-width:1100px;margin:0 auto;padding:48px 20px 24px;
+      display:grid;grid-template-columns:1.1fr .9fr;gap:26px
+    }
+    .hero h1{font-size:42px;line-height:1.1;margin:0 0 12px}
+    .hero p{color:var(--muted);font-size:18px;margin:0 0 16px}
+    .card{
+      background:var(--card);border:1px solid #374151;border-radius:16px;padding:20px
+    }
+    section{max-width:1100px;margin:0 auto;padding:24px 20px}
+    h2{font-size:28px;margin:0 0 8px}
+    h3{font-size:20px;margin:18px 0 6px}
+    ul{margin:10px 0 0 18px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#0b1324;border:1px solid #27304a;color:#aeb6c7;font-size:13px;margin-right:8px}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;background:#0b1324;border:1px solid #27304a;border-radius:8px;padding:2px 6px}
+    .callout{border-left:4px solid var(--accent);padding:10px 12px;background:#10211a;border-radius:8px;margin:12px 0}
+    .warn{border-left-color:var(--warn);background:#231b0a}
+    .danger{border-left-color:var(--danger);background:#2b0f12}
+    .table{width:100%;border-collapse:collapse;margin-top:8px}
+    .table th,.table td{border:1px solid #374151;padding:10px;text-align:left}
+    footer{padding:30px 20px;color:var(--muted);text-align:center;border-top:1px solid #1f2937;margin-top:30px}
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+      .grid2{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="nav">
+      <a href="#top">RAID Guide</a>
+      <div class="links">
+        <a href="#was-ist-raid">Was ist RAID?</a>
+        <a href="#aufgabe">Aufgabe</a>
+        <a href="#schnittstellen">Schnittstellen</a>
+        <a href="#kenngroessen">Kenngrößen</a>
+        <a href="#bewertung">Leistungsbewertung</a>
+        <a href="#praxis">Praxis-Tipps</a>
+      </div>
+      <a class="btn" href="#tl-dr">TL;DR</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="hero">
+      <div>
+        <h1>RAID verständlich: Sicherheit und Tempo für deine Daten</h1>
+        <p>RAID kombiniert mehrere Laufwerke zu einem Verbund. Ziel: mehr Ausfallsicherheit, höhere Leistung – oder beides. Hier erfährst du kompakt, was die Level bedeuten, wie du anbindest, welche Kennzahlen zählen und wie du beurteilst, ob ein Produkt gut passt.</p>
+        <div class="callout">
+          RAID ist kein Backup. Es schützt gegen Laufwerksausfall, aber nicht gegen versehentliches Löschen, Malware oder Feuer. Backup bleibt Pflicht.
+        </div>
+        <div>
+          <span class="pill">Anfängerfreundlich</span>
+          <span class="pill">Praxisnah</span>
+          <span class="pill">Aktuelle Schnittstellen</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Schnellvergleich gängiger RAID-Level</h3>
+        <table class="table">
+          <thead>
+            <tr><th>Level</th><th>Ziel</th><th>Min. Disks</th><th>Kapazität</th><th>Ausfälle toleriert</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RAID 0</td><td>Tempo</td><td>2</td><td>Summe</td><td>0</td></tr>
+            <tr><td>RAID 1</td><td>Spiegelung</td><td>2</td><td>1×</td><td>1 pro Spiegel</td></tr>
+            <tr><td>RAID 5</td><td>Kapazität + Parität</td><td>3</td><td>n−1</td><td>1</td></tr>
+            <tr><td>RAID 6</td><td>Doppelte Parität</td><td>4</td><td>n−2</td><td>2</td></tr>
+            <tr><td>RAID 10</td><td>Tempo + Spiegel</td><td>4</td><td>50%</td><td>bis 1 pro Spiegelpaar</td></tr>
+          </tbody>
+        </table>
+        <p style="color:var(--muted);margin-top:10px">n = Anzahl der Laufwerke im Verbund</p>
+      </div>
+    </div>
+
+    <section id="was-ist-raid">
+      <h2>Was ist RAID?</h2>
+      <p>RAID steht für Redundant Array of Independent Disks. Mehrere physische Laufwerke werden logisch zu einem Verbund zusammengefasst. Je nach <span class="kbd">Level</span> liegt der Fokus auf:</p>
+      <ul>
+        <li><b>Leistung</b> (Daten werden gestreift/parallel geschrieben, z.B. RAID 0)</li>
+        <li><b>Verfügbarkeit</b> (Daten werden gespiegelt oder per Parität abgesichert, z.B. RAID 1/5/6)</li>
+        <li><b>Beides</b> (Kombinationen wie RAID 10)</li>
+      </ul>
+      <div class="callout warn">
+        <b>Mythos</b>: RAID macht Daten unzerstörbar. Realität: Es reduziert Ausfallrisiken bei defekten Laufwerken – sonst nichts. Backup + Monitoring bleiben essenziell.
+      </div>
+    </section>
+
+    <section id="aufgabe">
+      <h2>Aufgabe des Bauteils (RAID-Controller)</h2>
+      <p>Das „Bauteil“ ist meist ein <b>RAID-Controller</b> (Hardware oder Software), der folgende Aufgaben übernimmt:</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Datenverteilung</h3>
+          <p>Steuert, wie Blöcke über die Laufwerke verteilt werden (Striping, Mirroring, Parity). Definiert die logische Struktur des Arrays.</p>
+        </div>
+        <div class="card">
+          <h3>Fehlerbehandlung</h3>
+          <p>Erkennt defekte Sektoren/Laufwerke, nutzt Spiegel/Parität zur Rekonstruktion und markiert Ersatzlaufwerke für Rebuilds.</p>
+        </div>
+        <div class="card">
+          <h3>Caching & Queueing</h3>
+          <p>Schreibt/liest effizient mit Write-Back-/Write-Through-Cache, optimiert Warteschlangen und I/O-Pfade.</p>
+        </div>
+      </div>
+      <h3>Hardware vs. Software</h3>
+      <ul>
+        <li><b>Software-RAID</b> (z.B. Windows Storage Spaces, Linux mdadm/ZFS): Flexible, kostengünstig, nutzt CPU; oft sehr performant mit NVMe.</li>
+        <li><b>Hardware-RAID</b> (dedizierte Controller): Eigenes RAM/CPU, Batteriepuffer (BBU), erprobte Management-Tools; sinnvoll bei vielen HDDs/Enterprise.</li>
+      </ul>
+    </section>
+
+    <section id="schnittstellen">
+      <h2>Anbindung an den Rechner / Schnittstellen</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Interne Schnittstellen</h3>
+          <ul>
+            <li><b>SATA</b>: Günstig, bis ~6 Gbit/s pro Port. Typisch für HDD/2.5"-SSD.</li>
+            <li><b>SAS</b>: Enterprise-Variante, bis 12–24 Gbit/s, Dual-Port, bessere Fehlermechanismen.</li>
+            <li><b>NVMe (PCIe)</b>: Sehr schnell, direkt über PCIe-Lanes (z.B. PCIe 4.0/5.0). Ideal für hohe IOPS/geringe Latenz.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Externe Anbindung</h3>
+          <ul>
+            <li><b>USB 3.x</b>: Einfach, aber Host-CPU-abhängig; gut für kleine JBOD/Software-RAID.</li>
+            <li><b>Thunderbolt</b>: Bis 40 Gbit/s; geeignet für schnelle externe Arrays.</li>
+            <li><b>NAS/SAN</b>: Netzwerkbasiert (Ethernet/iSCSI, Fibre Channel) – RAID liegt im NAS/SAN, Client greift per Netzwerk zu.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="callout">Wichtig: Die <b>Bandbreite der Anbindung</b> muss zur <b>Summe der Laufwerksleistung</b> passen. Sonst limitiert der Bus die Performance.</p>
+    </section>
+
+    <section id="kenngroessen">
+      <h2>Die wichtigsten Kenngrößen</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Kapazität</h3>
+          <p>Je nach Level: RAID 0 = Summe; RAID 1 = nur Größe des kleinsten Laufwerks; RAID 5 = Summe minus eine Platte; RAID 6 = Summe minus zwei; RAID 10 = 50%.</p>
+        </div>
+        <div class="card">
+          <h3>IOPS & Durchsatz</h3>
+          <p><b>IOPS</b> misst viele kleine Operationen/s. <b>Durchsatz</b> misst MB/s bei großen Transfers. SSD/NVMe liefern hohe IOPS, HDD eher Durchsatz.</p>
+        </div>
+        <div class="card">
+          <h3>Latenz</h3>
+          <p>Zugriffszeit pro Operation. NVMe deutlich geringer als SATA/SAS HDD. RAID-Levels mit Parität erhöhen Schreiblatenz.</p>
+        </div>
+        <div class="card">
+          <h3>Fehlertoleranz</h3>
+          <p>Wie viele Laufwerke dürfen ausfallen, ohne Datenverlust? RAID 1: 1 pro Spiegel; RAID 5: 1; RAID 6: 2; RAID 10: variabel (je Spiegelpaar).</p>
+        </div>
+        <div class="card">
+          <h3>MTTDL / URE-Risiko</h3>
+          <p><b>MTTDL</b> (Mean Time To Data Loss) hängt u.a. von Laufwerksanzahl, Level und URE-Rate (Unrecoverable Read Error) ab – kritisch beim Rebuild.</p>
+        </div>
+        <div class="card">
+          <h3>Rebuild-Zeit</h3>
+          <p>Wie lange dauert die Wiederherstellung nach Ausfall? Große HDD-Arrays brauchen teils viele Stunden bis Tage; Risiko steigt währenddessen.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="bewertung">
+      <h2>Wie bewerte ich die Leistung und Eignung?</h2>
+      <h3>Schritt-für-Schritt</h3>
+      <ol>
+        <li><b>Ziel festlegen</b>: Priorisierst du Verfügbarkeit, Leistung oder Kapazität?</li>
+        <li><b>Workload analysieren</b>: Random I/O (Datenbanken, VMs) vs. sequentiell (Video, Backups).</li>
+        <li><b>Medien wählen</b>: HDD für günstig viel Kapazität; SSD für IOPS; NVMe für Spitzenleistung.</li>
+        <li><b>Level passend wählen</b>:
+          <ul>
+            <li>Hohe Geschwindigkeit, kein Schutz: <b>RAID 0</b> (nur wenn Daten entbehrlich oder gut gebackupt).</li>
+            <li>Einfacher Schutz, schnell: <b>RAID 1</b> (2 Laufwerke).</li>
+            <li>Gutes Verhältnis Kapazität/Schutz: <b>RAID 5</b> (mind. 3, Achtung Rebuild-Risiko bei großen HDDs).</li>
+            <li>Mehr Schutz: <b>RAID 6</b> (mind. 4; sinnvoll für große HDD-Arrays).</li>
+            <li>Kombiniert Tempo + Schutz: <b>RAID 10</b> (mind. 4; top für Performance-kritische Workloads).</li>
+          </ul>
+        </li>
+        <li><b>Schnittstelle prüfen</b>: Passt SATA/SAS/PCIe-Bandbreite zur Summe deiner Laufwerke?</li>
+        <li><b>Controller/Software</b>: Cache, BBU, Treiberreife, Features (Tiering, Hot-Spare, Monitoring).</li>
+        <li><b>Messbar machen</b>: Benchmarks (z.B. CrystalDiskMark, fio) für Durchsatz, IOPS, Latenz.</li>
+      </ol>
+
+      <h3>Daumenregeln</h3>
+      <ul>
+        <li>Viele kleine Zugriffe → SSD/NVMe + RAID 10 oder RAID 1.</li>
+        <li>Große Dateien, Kapazität wichtig → HDD + RAID 6 für Sicherheit; RAID 5 nur bei kleineren Arrays.</li>
+        <li>Leselast hoch, Schreiblast moderat → RAID 5 ok; bei viel Schreiben lieber RAID 10/6.</li>
+        <li>Je größer die Platten, desto eher doppelte Parität (RAID 6) wegen URE-Risiko beim Rebuild.</li>
+      </ul>
+
+      <div class="callout">
+        Bewertung „gut/schlecht“: Ein Produkt ist „gut geeignet“, wenn es deine Zielmetrik (IOPS, Durchsatz, Verfügbarkeit) nachweislich erfüllt, die Schnittstellen nicht limitieren, und Rebuild-/URE-Risiko für die Plattengröße angemessen abgefedert wird.
+      </div>
+    </section>
+
+    <section id="praxis">
+      <h2>Praxis-Tipps</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Design-Checkliste</h3>
+          <ul>
+            <li>Hot-Spare einplanen für schnellere Wiederherstellung.</li>
+            <li>Write-Back-Cache nur mit BBU/USV aktivieren.</li>
+            <li>S.M.A.R.T. und Monitoring (E-Mail/Alerts) einschalten.</li>
+            <li>Regelmäßige Scrubs/Patrol Reads gegen stille Fehler.</li>
+            <li>Backup-Strategie: 3-2-1-Regel (3 Kopien, 2 Medientypen, 1 offsite).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Typische Stolpersteine</h3>
+          <ul>
+            <li>RAID ≠ Backup: Versehentliches Löschen bleibt endgültig.</li>
+            <li>Falsche Stripe-Größe kann Leistung kosten.</li>
+            <li>Gemischte Laufwerksgrößen reduzieren Kapazität.</li>
+            <li>Rebuild unter Last: Performanceeinbruch einplanen.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="tl-dr" class="card">
+      <h2>TL;DR – Kurzfazit</h2>
+      <ul>
+        <li>Brauchst du Tempo + Schutz? Nimm <b>RAID 10</b> mit SSD/NVMe.</li>
+        <li>Viel Kapazität mit Sicherheit? <b>RAID 6</b> auf HDD, Hot-Spare dazu.</li>
+        <li>Budget und einfache Spiegelung? <b>RAID 1</b>.</li>
+        <li>Nur Leistung, Daten entbehrlich/extern gesichert? <b>RAID 0</b>.</li>
+      </ul>
+    </section>
+
+    <footer>
+      © 2025 RAID Guide. Hinweise: Werte sind Richtgrößen; konkrete Performance hängt vom Controller, Medium, Workload und Konfiguration ab.
+    </footer>
+  </main>
+</body>
+</html>
