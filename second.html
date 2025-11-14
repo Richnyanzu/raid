@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAID – Redundant Array of Independent Disks</title>
+
+<style>
+    /* ----------- DESIGN SYSTEM ----------- */
+    :root{
+        --bg:#f5f7fa;
+        --text:#0f172a;
+        --muted:#475569;
+        --accent:#2563eb;
+        --accent-light:#dbeafe;
+        --card:#ffffff;
+        --border:#e2e8f0;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+        font-family: Inter, Roboto, sans-serif;
+        background:var(--bg);
+        color:var(--text);
+        line-height:1.6;
+    }
+
+    h1,h2,h3{font-weight:700;color:var(--text);}
+    h1{font-size:42px;}
+    h2{font-size:30px;margin-bottom:10px;}
+    h3{font-size:20px;margin-bottom:8px;}
+
+    /* ----------- HEADER ----------- */
+    header{
+        position:sticky;
+        top:0;
+        background:white;
+        border-bottom:1px solid var(--border);
+        padding:14px 0;
+        z-index:20;
+    }
+    .nav{
+        max-width:1150px;
+        margin:auto;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:0 20px;
+    }
+    .nav a{
+        text-decoration:none;
+        color:var(--text);
+        margin-left:20px;
+        font-weight:600;
+    }
+    .btn{
+        padding:10px 16px;
+        background:var(--accent);
+        color:white;
+        border-radius:8px;
+        font-weight:600;
+        text-decoration:none;
+    }
+
+    /* ----------- LAYOUT ----------- */
+    main{max-width:1150px;margin:40px auto;padding:0 20px;}
+    section{margin-bottom:80px;}
+
+    .card{
+        background:var(--card);
+        border:1px solid var(--border);
+        border-radius:14px;
+        padding:22px;
+        box-shadow:0 4px 10px rgba(0,0,0,0.04);
+        margin-top:18px;
+    }
+
+    img{
+        width:100%;
+        height:auto;
+        border-radius:12px;
+        margin:15px 0 25px;
+        background:#e5e7eb;
+    }
+
+    ul,ol{margin-left:20px;margin-top:8px;}
+    ul li,ol li{margin-bottom:6px;}
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        margin-top:10px;
+    }
+    th,td{
+        padding:10px;
+        border:1px solid var(--border);
+        text-align:left;
+    }
+    th{
+        background:var(--accent-light);
+        font-weight:700;
+    }
+
+    footer{
+        text-align:center;
+        padding:40px 10px;
+        color:var(--muted);
+        border-top:1px solid var(--border);
+        margin-top:60px;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="nav">
+        <strong>RAID Guide</strong>
+        <div>
+            <a href="#was-ist-raid">Was ist RAID?</a>
+            <a href="#controller">Aufgabe</a>
+            <a href="#schnittstellen">Schnittstellen</a>
+            <a href="#kenngroessen">Kenngrößen</a>
+            <a href="#bewertung">Bewertung</a>
+            <a href="#fazit">Fazit</a>
+        </div>
+        <a class="btn" href="#fazit">TL;DR</a>
+    </div>
+</header>
+
+<main>
+
+<!-- -------------------------------- -->
+<!-- 1) Was ist RAID? -->
+<!-- -------------------------------- -->
+<section id="was-ist-raid">
+    <h2>Was ist RAID?</h2>
+
+    <div class="card">
+        <p>
+            RAID kombiniert mehrere physische Laufwerke zu einem logischen Verbund.
+            Ziel: höhere Ausfallsicherheit, mehr Leistung oder eine Mischung aus beidem.
+        </p>
+
+        <h3>Wichtige RAID-Level</h3>
+        <ul>
+            <li><b>RAID 0:</b> Striping – maximale Geschwindigkeit, keine Redundanz.</li>
+            <li><b>RAID 1:</b> Spiegelung – hohe Sicherheit, einfache Redundanz.</li>
+            <li><b>RAID 5:</b> Parität – gute Balance aus Kapazität & Schutz (1 Platte Toleranz).</li>
+            <li><b>RAID 6:</b> Doppelte Parität – 2 Defekte tolerierbar, ideal für große Arrays.</li>
+            <li><b>RAID 10:</b> Spiegelung + Striping – hohe Geschwindigkeit UND Redundanz.</li>
+        </ul>
+
+        <div class="card" style="background:#fff8e6;border-color:#facc15;">
+            <b>Hinweis:</b> RAID schützt <u>nicht</u> vor Malware, versehentlichem Löschen oder Katastrophen. Backups bleiben Pflicht.
+        </div>
+    </div>
+
+    <img src="pic.png.jpg" alt="Platzhalter: RAID Übersicht">
+    
+</section>
+
+<!-- -------------------------------- -->
+<!-- 2) RAID-Controller -->
+<!-- -------------------------------- -->
+<section id="controller">
+    <h2>Aufgabe des Bauteils (RAID-Controller)</h2>
+
+    <img src="pic.png.jpg" alt="Platzhalter: RAID Controller">
+
+    <div class="card">
+        <h3>Datenverteilung</h3>
+        Steuert Striping, Mirroring und Parität.
+
+        <h3>Fehlerbehandlung</h3>
+        Erkennt defekte Laufwerke, sektorfehler und leitet den Rebuild ein.
+
+        <h3>Caching & Queueing</h3>
+        Write-Back/Write-Through, I/O-Optimierung, Priorisierung.
+
+        <h3>Hardware vs. Software</h3>
+        <ul>
+            <li><b>Software-RAID:</b> flexibel, günstig, nutzt CPU (ZFS, mdadm, Storage Spaces).</li>
+            <li><b>Hardware-RAID:</b> dedizierte Controller, Cache/BBU – ideal für HDD-Arrays.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- -------------------------------- -->
+<!-- 3) Schnittstellen -->
+<!-- -------------------------------- -->
+<section id="schnittstellen">
+    <h2>Anbindung an den Rechner / Schnittstellen</h2>
+
+    <img src="pic.png.jpg" alt="Platzhalter: Schnittstellen SATA SAS NVMe">
+
+    <div class="card">
+        <h3>Interne Schnittstellen</h3>
+        <ul>
+            <li><b>SATA:</b> bis 6 Gbit/s – typische HDD/SSD.</li>
+            <li><b>SAS:</b> 12–24 Gbit/s – robust, Enterprise.</li>
+            <li><b>NVMe (PCIe):</b> extrem hohe IOPS & geringe Latenz.</li>
+        </ul>
+
+        <h3>Externe Anbindung</h3>
+        <ul>
+            <li>USB 3.x – einfach, für kleine Arrays.</li>
+            <li>Thunderbolt – bis 40 Gbit/s.</li>
+            <li>NAS/SAN – RAID befindet sich im Netzwerkgerät.</li>
+        </ul>
+
+        <div class="card" style="background:#eef6ff;border-color:#60a5fa;">
+            <b>Regel:</b> Die Schnittstelle muss schneller sein als die Summe der Laufwerksleistung.
+        </div>
+    </div>
+</section>
+
+<!-- -------------------------------- -->
+<!-- 4) Kenngrößen -->
+<!-- -------------------------------- -->
+<section id="kenngroessen">
+    <h2>Die wichtigsten Kenngrößen</h2>
+
+    <img src="pic.png.jpg" alt="Platzhalter: Diagramm RAID Kennzahlen">
+
+    <div class="card">
+        <h3>Kapazität</h3>
+        <ul>
+            <li>RAID 0: Summe aller Laufwerke</li>
+            <li>RAID 1: kleinste Platte</li>
+            <li>RAID 5: Summe – 1 Platte</li>
+            <li>RAID 6: Summe – 2 Platten</li>
+            <li>RAID 10: ~50%</li>
+        </ul>
+
+        <h3>IOPS vs. Durchsatz</h3>
+        <p>IOPS = viele kleine Zugriffe. Durchsatz = große Transfers.</p>
+
+        <h3>Latenz</h3>
+        NVMe minimal, HDD maximal.
+
+        <h3>Fehlertoleranz</h3>
+        RAID 1: 1 / RAID 5: 1 / RAID 6: 2 / RAID 10: abhängig vom Paar.
+
+        <h3>URE / MTTDL</h3>
+        Risiko eines nicht korrigierbaren Lesefehlers – kritisch beim Rebuild.
+
+        <h3>Rebuild-Zeit</h3>
+        HDD-Arrays: Stunden bis Tage.
+    </div>
+</section>
+
+<!-- -------------------------------- -->
+<!-- 5) Leistungsbewertung -->
+<!-- -------------------------------- -->
+<section id="bewertung">
+    <h2>Eignung und Leistungsbewertung</h2>
+
+    <img src="pic.png.jpg" alt="Platzhalter: RAID Performance Bewertung">
+
+    <div class="card">
+        <h3>Schritt-für-Schritt</h3>
+        <ol>
+            <li>Ziel festlegen: Kapazität? Performance? Sicherheit?</li>
+            <li>Workload analysieren: Random I/O oder sequentiell?</li>
+            <li>Medien wählen: HDD, SSD, NVMe.</li>
+            <li>RAID-Level wählen (0,1,5,6,10).</li>
+            <li>Schnittstelle prüfen.</li>
+            <li>Controller/Software berücksichtigen.</li>
+            <li>Benchmarken (CrystalDiskMark, fio).</li>
+        </ol>
+
+        <h3>Daumenregeln</h3>
+        <ul>
+            <li>Viele kleine Zugriffe → SSD/NVMe + RAID 10.</li>
+            <li>Große Dateien → HDD + RAID 6.</li>
+            <li>Hohe Schreiblast → RAID 10/6 statt RAID 5.</li>
+            <li>Große HDD-Kapazitäten → RAID 6 wegen URE.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- -------------------------------- -->
+<!-- 6) TL;DR -->
+<!-- -------------------------------- -->
+<section id="fazit">
+    <h2>TL;DR – Kurzfazit</h2>
+
+    <div class="card">
+        <ul>
+            <li><b>Tempo + Schutz:</b> RAID 10 mit SSD/NVMe.</li>
+            <li><b>Kapazität + Sicherheit:</b> RAID 6 auf HDD.</li>
+            <li><b>Einfach & günstig:</b> RAID 1.</li>
+            <li><b>Nur Tempo:</b> RAID 0 (nur mit Backup!).</li>
+        </ul>
+    </div>
+
+    <img src="pic.png.jpg" alt="Platzhalter: RAID Fazit">
+</section>
+
+<footer>
+    © 2025 RAID Guide – basierend auf technischen Grundlagen & Praxiswerten. (Amin, Finn, Richmond & Serhat)
+</footer>
+
+</main>
+</body>
+</html>
