@@ -1,291 +1,632 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RAID – Verständlich erklärt</title>
-  <style>
-    :root{
-      --bg:#0f172a;        /* Slate-900 */
-      --panel:#111827;     /* Gray-900 */
-      --text:#e5e7eb;      /* Gray-200 */
-      --muted:#9ca3af;     /* Gray-400 */
-      --accent:#22c55e;    /* Green-500 */
-      --warn:#f59e0b;      /* Amber-500 */
-      --danger:#ef4444;    /* Red-500 */
-      --card:#1f2937;      /* Gray-800 */
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;line-height:1.6}
-    a{color:var.accent}
-    header{
-      position:sticky;top:0;z-index:10;
-      backdrop-filter:saturate(180%) blur(8px);
-      background:rgba(17,24,39,.7); /* Gray-900 alpha */
-      border-bottom:1px solid #1f2937;
-    }
-    .nav{
-      max-width:1100px;margin:0 auto;padding:12px 20px;
-      display:flex;gap:18px;align-items:center;justify-content:space-between
-    }
-    .nav a{color:var(--text);text-decoration:none;font-weight:600}
-    .nav .links{display:flex;gap:16px;flex-wrap:wrap}
-    .btn{
-      display:inline-block;padding:10px 14px;border-radius:10px;
-      background:var(--accent);color:#052e16;font-weight:700;text-decoration:none
-    }
-    .hero{
-      max-width:1100px;margin:0 auto;padding:48px 20px 24px;
-      display:grid;grid-template-columns:1.1fr .9fr;gap:26px
-    }
-    .hero h1{font-size:42px;line-height:1.1;margin:0 0 12px}
-    .hero p{color:var(--muted);font-size:18px;margin:0 0 16px}
-    .card{
-      background:var(--card);border:1px solid #374151;border-radius:16px;padding:20px
-    }
-    section{max-width:1100px;margin:0 auto;padding:24px 20px}
-    h2{font-size:28px;margin:0 0 8px}
-    h3{font-size:20px;margin:18px 0 6px}
-    ul{margin:10px 0 0 18px}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#0b1324;border:1px solid #27304a;color:#aeb6c7;font-size:13px;margin-right:8px}
-    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;background:#0b1324;border:1px solid #27304a;border-radius:8px;padding:2px 6px}
-    .callout{border-left:4px solid var(--accent);padding:10px 12px;background:#10211a;border-radius:8px;margin:12px 0}
-    .warn{border-left-color:var(--warn);background:#231b0a}
-    .danger{border-left-color:var(--danger);background:#2b0f12}
-    .table{width:100%;border-collapse:collapse;margin-top:8px}
-    .table th,.table td{border:1px solid #374151;padding:10px;text-align:left}
-    footer{padding:30px 20px;color:var(--muted);text-align:center;border-top:1px solid #1f2937;margin-top:30px}
-    @media (max-width:900px){
-      .hero{grid-template-columns:1fr}
-      .grid{grid-template-columns:1fr}
-      .grid2{grid-template-columns:1fr}
-    }
-    .pic{
-      height: 570px;
-    }
-  </style>
-</head>
-<body>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RAID Guide — Redundant Array of Independent Disks</title>
+<meta name="description" content="Kompakter, professioneller RAID-Guide: Levels, Controller, Schnittstellen, Kenngrößen und Empfehlung. Messe-optimiertes Design, responsive." />
 
-  <header>
-    <div class="nav">
-      <a href="#top">RAID Guide</a>
-      <div class="links">
+<!-- ========================
+     Styles (Light + Dark + Print + Responsive)
+     ======================== -->
+<style>
+  :root{
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #475569;
+    --accent: #2563eb;
+    --accent-2: #06b6d4;
+    --border: #e2e8f0;
+    --success: #16a34a;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --glass: rgba(255,255,255,0.6);
+  }
+
+  /* dark mode variables */
+  [data-theme="dark"]{
+    --bg: #0b1220;
+    --card: #0f1724;
+    --text: #e6eef8;
+    --muted: #9aa7bf;
+    --accent: #60a5fa;
+    --accent-2: #22d3ee;
+    --border: #15202b;
+    --glass: rgba(255,255,255,0.03);
+  }
+
+  /* Base */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.5;
+    scroll-behavior:smooth; /* smooth scroll */
+    padding-bottom:40px;
+  }
+
+  a{color:var(--accent);text-decoration:none}
+  a:focus{outline:3px solid rgba(37,99,235,0.18);outline-offset:3px;border-radius:6px}
+
+  /* Layout container */
+  .container{
+    max-width:1150px;
+    margin:0 auto;
+    padding:18px;
+  }
+
+  /* Header */
+  header{
+    position:sticky;
+    top:0;
+    z-index:60;
+    background:linear-gradient(180deg,var(--glass),transparent);
+    backdrop-filter: blur(6px) saturate(120%);
+    border-bottom:1px solid var(--border);
+  }
+  .nav{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 18px;
+    max-width:1150px;
+    margin:0 auto;
+  }
+  .brand{
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .logo{
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    box-shadow:0 6px 18px rgba(2,6,23,0.12);
+  }
+  .brand h1{font-size:16px;margin:0;color:var(--card);font-weight:700}
+  .brand p{font-size:12px;margin:0;color:var(--card);opacity:0.92}
+
+  /* Desktop nav links */
+  .links{display:flex;gap:14px;align-items:center}
+  .links a{font-size:14px;color:var(--text);padding:8px 10px;border-radius:8px}
+  .links a:hover{background:var(--glass)}
+  .cta{padding:8px 12px;background:var(--accent);color:white;border-radius:8px;font-weight:700}
+
+  /* Mobile menu button */
+  .menu-btn{
+    display:none;
+    background:transparent;border:0;font-size:22px;padding:8px;border-radius:8px;
+    color:var(--text);
+  }
+  .menu-btn[aria-expanded="true"]{background:var(--glass)}
+
+  /* Header controls (dark mode, print, qr) */
+  .controls{display:flex;gap:8px;align-items:center}
+  .switch{
+    display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);
+    padding:6px 8px;border-radius:999px;
+  }
+  .switch input{display:none}
+  .switch .knob{
+    width:36px;height:20px;background:var(--border);border-radius:999px;position:relative;
+  }
+  .switch .knob::after{
+    content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:white;transition:transform .22s ease;
+  }
+  [data-theme="dark"] .switch .knob{background:rgba(255,255,255,0.06)}
+  [data-theme="dark"] .switch .knob::after{transform:translateX(16px)}
+
+  /* Main hero */
+  .hero{
+    display:grid;
+    grid-template-columns:1fr 360px;
+    gap:22px;
+    align-items:start;
+    margin:22px auto 10px;
+  }
+  .intro{padding:18px;border-radius:14px;background:var(--card);border:1px solid var(--border);box-shadow:0 6px 20px rgba(2,6,23,0.04)}
+  .intro h2{margin:0 0 8px;font-size:22px}
+  .intro p{color:var(--muted);margin:0 0 10px}
+
+  .side{
+    padding:16px;border-radius:14px;background:linear-gradient(180deg,var(--card),transparent);
+    border:1px solid var(--border);
+  }
+  .level-table{width:100%;border-collapse:collapse}
+  .level-table th,.level-table td{padding:10px;border:1px solid var(--border);font-size:13px}
+  .level-table th{background:linear-gradient(90deg,var(--accent-2),var(--accent));color:white;font-weight:700}
+
+  /* Section cards */
+  section{margin-top:28px}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:18px;border-radius:12px;
+    box-shadow:0 6px 18px rgba(2,6,23,0.04);
+    transition:transform .36s cubic-bezier(.2,.9,.3,1),opacity .36s ease;
+    opacity:0; transform:translateY(18px);
+  }
+  .card.visible{opacity:1; transform:none}
+
+  .card h3{margin-top:0;margin-bottom:8px}
+
+  .note{background:#fff8e6;border:1px solid #facc15;padding:10px;border-radius:8px;color:#79460a;font-weight:600}
+
+  /* images placeholders */
+  .media{margin-top:12px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+  .media img{display:block;width:100%;height:auto}
+
+  /* grid layout for cards inside sections */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .stack{display:block}
+
+  /* footer */
+  footer{margin-top:40px;padding:30px 10px;color:var(--muted);text-align:center;border-top:1px solid var(--border)}
+
+  /* tiny badges */
+  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:var(--glass);border:1px solid var(--border);font-size:13px;color:var(--muted)}
+
+  /* responsive */
+  @media (max-width:1000px){
+    .hero{grid-template-columns:1fr 320px}
+    .grid-3{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:820px){
+    .hero{grid-template-columns:1fr}
+    .side{order:2}
+    .menu-btn{display:inline-flex}
+    .links{display:none}
+    .controls{display:none}
+  }
+  @media (max-width:600px){
+    .grid-3{grid-template-columns:1fr}
+    .grid-2{grid-template-columns:1fr}
+    .intro{padding:14px}
+    .brand h1{font-size:14px}
+    .brand p{font-size:11px}
+    .logo{width:40px;height:40px}
+  }
+
+  /* print stylesheet */
+  @media print{
+    body{background:white;color:black}
+    header, .menu-btn, .cta, .controls, .pill {display:none!important}
+    .container{padding:0}
+    .card{box-shadow:none;border:1px solid #ddd}
+    img{max-width:100%;height:auto}
+    section{page-break-inside:avoid}
+  }
+
+  /* animations for mobile menu */
+  .mobile-menu {
+    display:none;
+    position:absolute;
+    top:64px;left:0;right:0;
+    background:var(--card);
+    border-top:1px solid var(--border);
+    box-shadow:0 12px 30px rgba(2,6,23,0.08);
+    padding:12px;
+    transform-origin:top;
+    animation: slideDown .28s ease both;
+  }
+  @keyframes slideDown{
+    from{transform:scaleY(0);opacity:0}
+    to{transform:scaleY(1);opacity:1}
+  }
+
+  /* accessibility focus */
+  a:focus, button:focus {outline:2px dashed var(--accent); outline-offset:3px}
+</style>
+</head>
+<body data-theme="light">
+
+<!-- ========================
+     Header
+     ======================== -->
+<header>
+  <div class="nav container" role="navigation" aria-label="Hauptnavigation">
+    <div class="brand" style="gap:10px;">
+      <!-- Minimalist SVG logo (editable) -->
+      <div class="logo" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="20" rx="5" fill="white" opacity="0.08"/>
+          <path d="M5 16 L9 9 L11 12 L13 8 L19 18" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1 style="margin:0;color:var(--card)">RAID Guide</h1>
+        <p style="margin:0;font-size:11px;color:var(--card);opacity:0.9">Kompakt</p>
+      </div>
+    </div>
+
+    <nav style="display:flex;align-items:center;gap:12px;">
+      <div class="links" aria-hidden="false">
         <a href="#was-ist-raid">Was ist RAID?</a>
-        <a href="#aufgabe">Aufgabe</a>
+        <a href="#controller">Aufgabe</a>
         <a href="#schnittstellen">Schnittstellen</a>
         <a href="#kenngroessen">Kenngrößen</a>
-        <a href="#bewertung">Leistungsbewertung</a>
-        <a href="#praxis">Praxis-Tipps</a>
+        <a href="#bewertung">Bewertung</a>
+        <a href="#fazit">Fazit</a>
       </div>
-      <a class="btn" href="#tl-dr">TL;DR</a>
+
+      <div class="controls" role="region" aria-label="Seiteneinstellungen">
+        <!-- Dark mode switch -->
+        <label class="switch" title="Dark / Light" aria-hidden="false">
+          <input id="themeToggle" type="checkbox" aria-label="Dark mode an/aus">
+          <div class="knob" aria-hidden="true"></div>
+        </label>
+
+        <!-- Print button -->
+        <button class="cta" id="printBtn" title="Druckansicht">Drucken</button>
+      </div>
+
+      <!-- Mobile menu button -->
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Menü öffnen">
+        ☰
+      </button>
+
+      <!-- CTA -->
+      <a class="cta" href="#fazit">TL;DR</a>
+    </nav>
+  </div>
+
+  <!-- Mobile Menu (animated) -->
+  <div id="mobileMenu" class="mobile-menu" role="menu" aria-hidden="true" style="display:none;">
+    <a href="#was-ist-raid" role="menuitem" onclick="closeMobile()">Was ist RAID?</a><br>
+    <a href="#controller" role="menuitem" onclick="closeMobile()">Aufgabe</a><br>
+    <a href="#schnittstellen" role="menuitem" onclick="closeMobile()">Schnittstellen</a><br>
+    <a href="#kenngroessen" role="menuitem" onclick="closeMobile()">Kenngrößen</a><br>
+    <a href="#bewertung" role="menuitem" onclick="closeMobile()">Bewertung</a><br>
+    <a href="#fazit" role="menuitem" onclick="closeMobile()">Fazit</a><br>
+    <hr style="border:none;border-top:1px solid var(--border);margin:8px 0">
+    <button onclick="window.print()" style="padding:8px 12px;border-radius:8px;background:var(--accent);color:white;border:0;cursor:pointer">Drucken</button>
+  </div>
+</header>
+
+<!-- ========================
+     Content
+     ======================== -->
+<main class="container" id="top">
+
+  <!-- HERO / QUICK SUMMARY -->
+  <div class="hero" role="region" aria-label="Kurzeinführung">
+    <div class="intro">
+      <h2>RAID verständlich: Sicherheit & Tempo für deine Daten</h2>
+      <p style="color:var(--muted)">
+        RAID kombiniert mehrere Laufwerke zu einem Verbund — Ziel: Ausfallsicherheit, Leistung oder beides.
+      </p>
+
+      <div style="margin-top:12px">
+        <div style="border-left:4px solid var(--accent);padding:10px;border-radius:8px;background:var(--glass);font-weight:600">
+          RAID ist kein Backup — Backup bleibt Pflicht.
+        </div>
+      </div>
     </div>
-  </header>
 
-  <main id="top">
-    <div class="hero">
+    <aside class="side" aria-label="Schnellvergleich RAID-Level">
+      <h3 style="margin:0 0 8px">Schnellvergleich</h3>
+      <table class="level-table" role="table" aria-label="RAID Level Tabelle">
+        <thead>
+          <tr><th>Level</th><th>Ziel</th><th>Min.</th><th>Kapazität</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>RAID 0</td><td>Tempo</td><td>2</td><td>Summe</td></tr>
+          <tr><td>RAID 1</td><td>Spiegel</td><td>2</td><td>1×</td></tr>
+          <tr><td>RAID 5</td><td>Parität</td><td>3</td><td>n−1</td></tr>
+          <tr><td>RAID 6</td><td>Doppelte Parität</td><td>4</td><td>n−2</td></tr>
+          <tr><td>RAID 10</td><td>Tempo+Redundanz</td><td>4</td><td>~50%</td></tr>
+        </tbody>
+      </table>
+      <p style="color:var(--muted);font-size:13px;margin-top:8px;">n = Anzahl Laufwerke</p>
+    </aside>
+  </div>
+
+  <!-- ========================
+       1) Was ist RAID?
+       ======================== -->
+  <section id="was-ist-raid" class="card" tabindex="-1" aria-labelledby="title-1">
+    <h2 id="title-1">Was ist RAID?</h2>
+
+    <p>RAID steht für <em>Redundant Array of Independent Disks</em>. Mehrere physische Laufwerke werden logisch zusammengefasst. Je nach Level liegt der Fokus auf Leistung, Verfügbarkeit oder beidem.</p>
+
+    <h3>Wichtige RAID-Level</h3>
+    <ul>
+      <li><strong>RAID 0</strong>: Striping — maximale Geschwindigkeit, keine Redundanz.</li>
+      <li><strong>RAID 1</strong>: Spiegelung — einfache, sehr zuverlässige Redundanz.</li>
+      <li><strong>RAID 5</strong>: Parität — guter Kompromiss aus Kapazität und Schutz (1 Platte toleriert).</li>
+      <li><strong>RAID 6</strong>: Doppelte Parität — 2 Platten tolerierbar; sicherer bei großen Arrays.</li>
+      <li><strong>RAID 10</strong>: Spiegelung + Striping — hohe Leistung & Redundanz.</li>
+    </ul>
+
+    <div class="note" role="note" aria-live="polite">Mythos: RAID macht Daten unzerstörbar — Realität: RAID reduziert Laufwerksausfallrisiken. Backups & Monitoring weiterhin erforderlich.</div>
+
+    <div class="media" aria-hidden="false">
+  
+      <img src="raid0.webp" alt="Platzhaltergrafik"/>
+      <img src="raid1.webp" alt="Platzhaltergrafik"/>
+      <img src="raid5.webp" alt="Platzhaltergrafik"/>
+      <img src="raid6.webp" alt="Platzhaltergrafik"/>
+      <img src="raid10.webp" alt="Platzhaltergrafik"/>
+      <img src="raid10.webp" alt="Platzhaltergrafik"/>
+      <img src="pic.png.jpg" alt="Platzhaltergrafik"/>
+    </div>
+  </section>
+
+  <!-- ========================
+       2) RAID-Controller
+       ======================== -->
+  <section id="controller" class="card" tabindex="-1" aria-labelledby="title-2">
+    <h2 id="title-2">Aufgabe des Bauteils (RAID-Controller)</h2>
+
+    <div class="grid-3" style="margin-top:10px">
       <div>
-        <h1>RAID verständlich: Sicherheit und Tempo für deine Daten</h1>
-        <p>RAID kombiniert mehrere Laufwerke zu einem Verbund. Ziel: mehr Ausfallsicherheit, höhere Leistung – oder beides. Hier erfährst du kompakt, was die Level bedeuten, wie du anbindest, welche Kennzahlen zählen und wie du beurteilst, ob ein Produkt gut passt.</p>
-        <div class="callout">
-          RAID ist kein Backup. Es schützt gegen Laufwerksausfall, aber nicht gegen versehentliches Löschen, Malware oder Feuer. Backup bleibt Pflicht.
-        </div>
-        <div>
-          <span class="pill">Anfängerfreundlich</span>
-          <span class="pill">Praxisnah</span>
-          <span class="pill">Aktuelle Schnittstellen</span>
-        </div>
+        <h3>Datenverteilung</h3>
+        <p>Steuert Striping, Mirroring, Parity und definiert die logische Struktur des Arrays.</p>
       </div>
-      <div class="card">
-        <h3>Schnellvergleich gängiger RAID-Level</h3>
-        <table class="table">
-          <thead>
-            <tr><th>Level</th><th>Ziel</th><th>Min. Disks</th><th>Kapazität</th><th>Ausfälle toleriert</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>RAID 0</td><td>Tempo</td><td>2</td><td>Summe</td><td>0</td></tr>
-            <tr><td>RAID 1</td><td>Spiegelung</td><td>2</td><td>1×</td><td>1 pro Spiegel</td></tr>
-            <tr><td>RAID 5</td><td>Kapazität + Parität</td><td>3</td><td>n−1</td><td>1</td></tr>
-            <tr><td>RAID 6</td><td>Doppelte Parität</td><td>4</td><td>n−2</td><td>2</td></tr>
-            <tr><td>RAID 10</td><td>Tempo + Spiegel</td><td>4</td><td>50%</td><td>bis 1 pro Spiegelpaar</td></tr>
-          </tbody>
-        </table>
-        <p style="color:var(--muted);margin-top:10px">n = Anzahl der Laufwerke im Verbund</p>
+      <div>
+        <h3>Fehlerbehandlung</h3>
+        <p>Erkennt defekte Sektoren/Laufwerke, markiert Ersatzlaufwerke und startet Rebuilds.</p>
+      </div>
+      <div>
+        <h3>Caching & Queueing</h3>
+        <p>Write-Back / Write-Through, Warteschlangenoptimierung, I/O-Priorisierung.</p>
       </div>
     </div>
 
-    <section id="was-ist-raid">
-      <h2>Was ist RAID?</h2>
-      <p>RAID steht für Redundant Array of Independent Disks. Mehrere physische Laufwerke werden logisch zu einem Verbund zusammengefasst. Je nach <span class="kbd">Level</span> liegt der Fokus auf:</p>
-      <ul>
-        <li><b>Leistung</b> (Daten werden gestreift/parallel geschrieben, z.B. RAID 0)</li>
-        <li><b>Verfügbarkeit</b> (Daten werden gespiegelt oder per Parität abgesichert, z.B. RAID 1/5/6)</li>
-        <li><b>Beides</b> (Kombinationen wie RAID 10)</li>
-      </ul>
-      <div class="callout warn">
-        <b>Mythos</b>: RAID macht Daten unzerstörbar. Realität: Es reduziert Ausfallrisiken bei defekten Laufwerken – sonst nichts. Backup + Monitoring bleiben essenziell.
-      </div>
-    </section>
+    <h3 style="margin-top:14px">Hardware vs. Software</h3>
+    <ul>
+      <li><strong>Software-RAID</strong>: flexibel, günstig, nutzt CPU (z. B. mdadm, ZFS, Storage Spaces).</li>
+      <li><strong>Hardware-RAID</strong>: dedizierte Controller mit Cache/BBU; stabiler bei großen HDD-Arrays.</li>
+    </ul>
 
-    <section>
+    <div class="media"><img src="raidController.png" alt="Platzhalter"></div>
+  </section>
+
+  <!-- ========================
+       3) Schnittstellen
+       ======================== -->
+  <section id="schnittstellen" class="card" tabindex="-1" aria-labelledby="title-3">
+    <h2 id="title-3">Anbindung an den Rechner / Schnittstellen</h2>
+
+    <div class="grid-2" style="margin-top:8px">
       <div>
-        <img class="pic" src="pic.png.jpg" alt="">
+        <h3>Interne Schnittstellen</h3>
+        <ul>
+          <li><strong>SATA</strong>: bis 6 Gbit/s – typisch für HDD/2.5" SSD.</li>
+          <li><strong>SAS</strong>: 12–24 Gbit/s, Dual-Port, robustere Fehlermechanismen.</li>
+          <li><strong>NVMe (PCIe)</strong>: sehr hohe IOPS & niedrige Latenz.</li>
+        </ul>
       </div>
-    </section>
-
-    <section id="aufgabe">
-      <h2>Aufgabe des Bauteils (RAID-Controller)</h2>
-      <p>Das „Bauteil“ ist meist ein <b>RAID-Controller</b> (Hardware oder Software), der folgende Aufgaben übernimmt:</p>
-      <div class="grid">
-        <div class="card">
-          <h3>Datenverteilung</h3>
-          <p>Steuert, wie Blöcke über die Laufwerke verteilt werden (Striping, Mirroring, Parity). Definiert die logische Struktur des Arrays.</p>
-        </div>
-        <div class="card">
-          <h3>Fehlerbehandlung</h3>
-          <p>Erkennt defekte Sektoren/Laufwerke, nutzt Spiegel/Parität zur Rekonstruktion und markiert Ersatzlaufwerke für Rebuilds.</p>
-        </div>
-        <div class="card">
-          <h3>Caching & Queueing</h3>
-          <p>Schreibt/liest effizient mit Write-Back-/Write-Through-Cache, optimiert Warteschlangen und I/O-Pfade.</p>
-        </div>
+      <div>
+        <h3>Externe Anbindung</h3>
+        <ul>
+          <li><strong>USB 3.x</strong>: einfach, für kleine Verbunde.</li>
+          <li><strong>Thunderbolt</strong>: bis 40 Gbit/s für schnelle externe Arrays.</li>
+          <li><strong>NAS / SAN</strong>: iSCSI, NFS/SMB, Fibre Channel — RAID liegt im NAS/SAN.</li>
+        </ul>
       </div>
-      <h3>Hardware vs. Software</h3>
-      <ul>
-        <li><b>Software-RAID</b> (z.B. Windows Storage Spaces, Linux mdadm/ZFS): Flexible, kostengünstig, nutzt CPU; oft sehr performant mit NVMe.</li>
-        <li><b>Hardware-RAID</b> (dedizierte Controller): Eigenes RAM/CPU, Batteriepuffer (BBU), erprobte Management-Tools; sinnvoll bei vielen HDDs/Enterprise.</li>
-      </ul>
-    </section>
+    </div>
 
-    <section id="schnittstellen">
-      <h2>Anbindung an den Rechner / Schnittstellen</h2>
-      <div class="grid2">
-        <div class="card">
-          <h3>Interne Schnittstellen</h3>
-          <ul>
-            <li><b>SATA</b>: Günstig, bis ~6 Gbit/s pro Port. Typisch für HDD/2.5"-SSD.</li>
-            <li><b>SAS</b>: Enterprise-Variante, bis 12–24 Gbit/s, Dual-Port, bessere Fehlermechanismen.</li>
-            <li><b>NVMe (PCIe)</b>: Sehr schnell, direkt über PCIe-Lanes (z.B. PCIe 4.0/5.0). Ideal für hohe IOPS/geringe Latenz.</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>Externe Anbindung</h3>
-          <ul>
-            <li><b>USB 3.x</b>: Einfach, aber Host-CPU-abhängig; gut für kleine JBOD/Software-RAID.</li>
-            <li><b>Thunderbolt</b>: Bis 40 Gbit/s; geeignet für schnelle externe Arrays.</li>
-            <li><b>NAS/SAN</b>: Netzwerkbasiert (Ethernet/iSCSI, Fibre Channel) – RAID liegt im NAS/SAN, Client greift per Netzwerk zu.</li>
-          </ul>
-        </div>
+    <div class="note" style="margin-top:12px">Praxisregel: Die Bus-/Schnittstellenbandbreite muss zur Summe der Laufwerksleistung passen, sonst limitiert der Bus die Performance.</div>
+  </section>
+
+  <!-- ========================
+       4) Kenngrößen
+       ======================== -->
+  <section id="kenngroessen" class="card" tabindex="-1" aria-labelledby="title-4">
+    <h2 id="title-4">Die wichtigsten Kenngrößen</h2>
+
+    <div class="grid-3" style="margin-top:8px">
+      <div>
+        <h3>Kapazität</h3>
+        <p>RAID 0 = Summe; RAID 1 = kleinste Platte; RAID 5 = Summe−1; RAID 6 = Summe−2; RAID 10 ≈ 50%.</p>
       </div>
-      <p class="callout">Wichtig: Die <b>Bandbreite der Anbindung</b> muss zur <b>Summe der Laufwerksleistung</b> passen. Sonst limitiert der Bus die Performance.</p>
-    </section>
-
-    <section id="kenngroessen">
-      <h2>Die wichtigsten Kenngrößen</h2>
-      <div class="grid">
-        <div class="card">
-          <h3>Kapazität</h3>
-          <p>Je nach Level: RAID 0 = Summe; RAID 1 = nur Größe des kleinsten Laufwerks; RAID 5 = Summe minus eine Platte; RAID 6 = Summe minus zwei; RAID 10 = 50%.</p>
-        </div>
-        <div class="card">
-          <h3>IOPS & Durchsatz</h3>
-          <p><b>IOPS</b> misst viele kleine Operationen/s. <b>Durchsatz</b> misst MB/s bei großen Transfers. SSD/NVMe liefern hohe IOPS, HDD eher Durchsatz.</p>
-        </div>
-        <div class="card">
-          <h3>Latenz</h3>
-          <p>Zugriffszeit pro Operation. NVMe deutlich geringer als SATA/SAS HDD. RAID-Levels mit Parität erhöhen Schreiblatenz.</p>
-        </div>
-        <div class="card">
-          <h3>Fehlertoleranz</h3>
-          <p>Wie viele Laufwerke dürfen ausfallen, ohne Datenverlust? RAID 1: 1 pro Spiegel; RAID 5: 1; RAID 6: 2; RAID 10: variabel (je Spiegelpaar).</p>
-        </div>
-        <div class="card">
-          <h3>MTTDL / URE-Risiko</h3>
-          <p><b>MTTDL</b> (Mean Time To Data Loss) hängt u.a. von Laufwerksanzahl, Level und URE-Rate (Unrecoverable Read Error) ab – kritisch beim Rebuild.</p>
-        </div>
-        <div class="card">
-          <h3>Rebuild-Zeit</h3>
-          <p>Wie lange dauert die Wiederherstellung nach Ausfall? Große HDD-Arrays brauchen teils viele Stunden bis Tage; Risiko steigt währenddessen.</p>
-        </div>
+      <div>
+        <h3>IOPS & Durchsatz</h3>
+        <p>IOPS = viele kleine Operationen/s (Datenbanken); Durchsatz = MB/s bei großen Dateien (Backups, Video).</p>
       </div>
-    </section>
-
-    <section id="bewertung">
-      <h2>Wie bewerte ich die Leistung und Eignung?</h2>
-      <h3>Schritt-für-Schritt</h3>
-      <ol>
-        <li><b>Ziel festlegen</b>: Priorisierst du Verfügbarkeit, Leistung oder Kapazität?</li>
-        <li><b>Workload analysieren</b>: Random I/O (Datenbanken, VMs) vs. sequentiell (Video, Backups).</li>
-        <li><b>Medien wählen</b>: HDD für günstig viel Kapazität; SSD für IOPS; NVMe für Spitzenleistung.</li>
-        <li><b>Level passend wählen</b>:
-          <ul>
-            <li>Hohe Geschwindigkeit, kein Schutz: <b>RAID 0</b> (nur wenn Daten entbehrlich oder gut gebackupt).</li>
-            <li>Einfacher Schutz, schnell: <b>RAID 1</b> (2 Laufwerke).</li>
-            <li>Gutes Verhältnis Kapazität/Schutz: <b>RAID 5</b> (mind. 3, Achtung Rebuild-Risiko bei großen HDDs).</li>
-            <li>Mehr Schutz: <b>RAID 6</b> (mind. 4; sinnvoll für große HDD-Arrays).</li>
-            <li>Kombiniert Tempo + Schutz: <b>RAID 10</b> (mind. 4; top für Performance-kritische Workloads).</li>
-          </ul>
-        </li>
-        <li><b>Schnittstelle prüfen</b>: Passt SATA/SAS/PCIe-Bandbreite zur Summe deiner Laufwerke?</li>
-        <li><b>Controller/Software</b>: Cache, BBU, Treiberreife, Features (Tiering, Hot-Spare, Monitoring).</li>
-        <li><b>Messbar machen</b>: Benchmarks (z.B. CrystalDiskMark, fio) für Durchsatz, IOPS, Latenz.</li>
-      </ol>
-
-      <h3>Daumenregeln</h3>
-      <ul>
-        <li>Viele kleine Zugriffe → SSD/NVMe + RAID 10 oder RAID 1.</li>
-        <li>Große Dateien, Kapazität wichtig → HDD + RAID 6 für Sicherheit; RAID 5 nur bei kleineren Arrays.</li>
-        <li>Leselast hoch, Schreiblast moderat → RAID 5 ok; bei viel Schreiben lieber RAID 10/6.</li>
-        <li>Je größer die Platten, desto eher doppelte Parität (RAID 6) wegen URE-Risiko beim Rebuild.</li>
-      </ul>
-
-      <div class="callout">
-        Bewertung „gut/schlecht“: Ein Produkt ist „gut geeignet“, wenn es deine Zielmetrik (IOPS, Durchsatz, Verfügbarkeit) nachweislich erfüllt, die Schnittstellen nicht limitieren, und Rebuild-/URE-Risiko für die Plattengröße angemessen abgefedert wird.
+      <div>
+        <h3>Latenz</h3>
+        <p>NVMe deutlich niedriger als SATA/SAS/HDD; Paritäts-RAIDs erhöhen Schreiblatenz.</p>
       </div>
-    </section>
+    </div>
 
-    <section id="praxis">
-      <h2>Praxis-Tipps</h2>
-      <div class="grid2">
-        <div class="card">
-          <h3>Design-Checkliste</h3>
-          <ul>
-            <li>Hot-Spare einplanen für schnellere Wiederherstellung.</li>
-            <li>Write-Back-Cache nur mit BBU/USV aktivieren.</li>
-            <li>S.M.A.R.T. und Monitoring (E-Mail/Alerts) einschalten.</li>
-            <li>Regelmäßige Scrubs/Patrol Reads gegen stille Fehler.</li>
-            <li>Backup-Strategie: 3-2-1-Regel (3 Kopien, 2 Medientypen, 1 offsite).</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>Typische Stolpersteine</h3>
-          <ul>
-            <li>RAID ≠ Backup: Versehentliches Löschen bleibt endgültig.</li>
-            <li>Falsche Stripe-Größe kann Leistung kosten.</li>
-            <li>Gemischte Laufwerksgrößen reduzieren Kapazität.</li>
-            <li>Rebuild unter Last: Performanceeinbruch einplanen.</li>
-          </ul>
-        </div>
+    <div class="grid-3" style="margin-top:12px">
+      <div>
+        <h3>Fehlertoleranz</h3>
+        <p>RAID 1: Spiegel je 1; RAID 5: 1; RAID 6: 2; RAID 10: abhängig.</p>
       </div>
-    </section>
+      <div>
+        <h3>URE / MTTDL</h3>
+        <p>Unrecoverable Read Error beeinflusst Rebuild-Risiko — relevant bei großen HDDs.</p>
+      </div>
+      <div>
+        <h3>Rebuild-Zeit</h3>
+        <p>Dauer der Wiederherstellung (Stunden–Tage bei großen HDDs; währenddessen erhöhtes Risiko).</p>
+      </div>
+    </div>
+  </section>
 
-    <section id="tl-dr" class="card">
-      <h2>TL;DR – Kurzfazit</h2>
-      <ul>
-        <li>Brauchst du Tempo + Schutz? Nimm <b>RAID 10</b> mit SSD/NVMe.</li>
-        <li>Viel Kapazität mit Sicherheit? <b>RAID 6</b> auf HDD, Hot-Spare dazu.</li>
-        <li>Budget und einfache Spiegelung? <b>RAID 1</b>.</li>
-        <li>Nur Leistung, Daten entbehrlich/extern gesichert? <b>RAID 0</b>.</li>
-      </ul>
-    </section>
+  <!-- ========================
+       5) Eignung & Bewertung
+       ======================== -->
+  <section id="bewertung" class="card" tabindex="-1" aria-labelledby="title-5">
+    <h2 id="title-5">Eignung und Leistungsbewertung</h2>
 
-    <footer>
-      © 2025 RAID Guide. Hinweise: Werte sind Richtgrößen; konkrete Performance hängt vom Controller, Medium, Workload und Konfiguration ab.
-    </footer>
-  </main>
+    <h3>Schritt-für-Schritt</h3>
+    <ol>
+      <li><strong>Ziel:</strong> Verfügbarkeit, Leistung oder Kapazität?</li>
+      <li><strong>Workload:</strong> Random I/O vs. sequentiell?</li>
+      <li><strong>Medien:</strong> HDD für Kapazität, SSD/NVMe für IOPS.</li>
+      <li><strong>Level passieren:</strong> RAID 0/1/5/6/10 je nach Ziel.</li>
+      <li><strong>Schnittstelle prüfen:</strong> SATA, SAS, PCIe/NVMe, Thunderbolt, Netz.</li>
+      <li><strong>Controller/Software:</strong> Cache, BBU, Hot-Spare, Monitoring.</li>
+      <li><strong>Benchmark:</strong> CrystalDiskMark, fio für objektive Messwerte.</li>
+    </ol>
+
+    <h3>Daumenregeln</h3>
+    <ul>
+      <li>Viele kleine Zugriffe → SSD/NVMe + RAID 10 oder RAID 1.</li>
+      <li>Große Dateien → HDD + RAID 6; RAID 5 nur bei kleineren Arrays.</li>
+      <li>Viel Schreiblaste → RAID 10 oder RAID 6.</li>
+      <li>Größere Platten → RAID 6 wegen URE-Risiko.</li>
+    </ul>
+  </section>
+
+  <!-- ========================
+       6) TL;DR
+       ======================== -->
+  <section id="fazit" class="card" tabindex="-1" aria-labelledby="title-6">
+    <h2 id="title-6">TL;DR – Kurzfazit</h2>
+    <ul>
+      <li><strong>Tempo + Schutz:</strong> RAID 10 mit SSD/NVMe.</li>
+      <li><strong>Kapazität + Sicherheit:</strong> RAID 6 auf HDD + Hot-Spare.</li>
+      <li><strong>Einfach & günstig:</strong> RAID 1.</li>
+      <li><strong>Nur Tempo:</strong> RAID 0 — nur mit Backup!</li>
+    </ul>
+
+    <div style="display:flex;gap:12px;align-items:center;margin-top:12px;flex-wrap:wrap">
+      <div style="width:120px">
+        <!-- QR Code generator (uses Google Chart API; will render QR for current page) -->
+        <img id="qrImg" src="" alt="QR Code zur Seite" style="width:120px;border:1px solid var(--border);border-radius:8px;padding:6px;background:var(--card)">
+      </div>
+    </div>
+  </section>
+
+  <footer role="contentinfo">
+    © 2025 RAID Guide · basierend auf technischen Grundlagen & Praxiswerten. (Amin, Finn, Richmond & Serhat)
+  </footer>
+
+</main>
+
+<!-- ========================
+     Scripts: theme toggle, mobile menu, animations, QR, print
+     ======================== -->
+<script>
+  (function(){
+    const root = document.documentElement;
+    const body = document.body;
+    const themeToggle = document.getElementById('themeToggle');
+    const printBtn = document.getElementById('printBtn');
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const qrImg = document.getElementById('qrImg');
+
+    /* ---------- Theme handling (persists in localStorage) ---------- */
+    const THEME_KEY = 'raidguide_theme';
+    function setTheme(theme){
+      if(theme === 'dark'){
+        body.setAttribute('data-theme','dark');
+        themeToggle.checked = true;
+      } else {
+        body.setAttribute('data-theme','light');
+        themeToggle.checked = false;
+      }
+      try{ localStorage.setItem(THEME_KEY,theme); }catch(e){}
+    }
+    // initialize
+    (function initTheme(){
+      let saved = null;
+      try{ saved = localStorage.getItem(THEME_KEY); }catch(e){}
+      if(saved){
+        setTheme(saved);
+      }else{
+        // default: respect system pref
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(prefersDark ? 'dark' : 'light');
+      }
+    })();
+
+    themeToggle.addEventListener('change', function(){
+      setTheme(this.checked ? 'dark' : 'light');
+    });
+
+    /* ---------- Print button ---------- */
+    printBtn.addEventListener('click', function(){ window.print(); });
+
+    /* ---------- Mobile menu toggle with animation ---------- */
+    function openMobile(){
+      mobileMenu.style.display = 'block';
+      mobileMenu.setAttribute('aria-hidden','false');
+      menuBtn.setAttribute('aria-expanded','true');
+    }
+    function closeMobile(){
+      mobileMenu.style.display = 'none';
+      mobileMenu.setAttribute('aria-hidden','true');
+      menuBtn.setAttribute('aria-expanded','false');
+    }
+    menuBtn.addEventListener('click', function(){
+      if(mobileMenu.style.display === 'block') closeMobile(); else openMobile();
+    });
+    // expose to inline handlers
+    window.closeMobile = closeMobile;
+
+    /* ---------- IntersectionObserver for reveal animations ---------- */
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {threshold: 0.12});
+    document.querySelectorAll('.card').forEach(el => observer.observe(el));
+
+    /* ---------- QR code generation (Google Chart API) ---------- */
+    function setQR(){
+      try{
+        const url = window.location.href;
+        const size = 300;
+        // Using Google Chart QR generator (no external libs). If offline, this will fail silently.
+        const src = 'https://chart.googleapis.com/chart?cht=qr&chs=' + size + 'x' + size + '&chl=' + encodeURIComponent(url) + '&choe=UTF-8';
+        qrImg.src = src;
+      }catch(e){
+        // fallback: hide QR area if something goes wrong
+        qrImg.style.display = 'none';
+      }
+    }
+    setQR();
+
+    /* ---------- Accessibility: keyboard close mobile menu on ESC ---------- */
+    window.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){
+        closeMobile();
+      }
+    });
+
+    /* ---------- Smooth anchor focusing for keyboard users ---------- */
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', function(e){
+        // close mobile menu on link click
+        if(mobileMenu.style.display === 'block') closeMobile();
+        const id = this.getAttribute('href');
+        if(id && id.startsWith('#')){
+          const target = document.querySelector(id);
+          if(target){
+            // let browser handle scroll (smooth) but also focus for screen readers
+            setTimeout(()=>{ target.focus({preventScroll:true}); }, 400);
+          }
+        }
+      });
+    });
+
+    /* ---------- On large screens: ensure .mobile-menu hidden ---------- */
+    window.addEventListener('resize', function(){
+      if(window.innerWidth > 820){
+        mobileMenu.style.display = 'none';
+        mobileMenu.setAttribute('aria-hidden','true');
+        menuBtn.setAttribute('aria-expanded','false');
+      }
+    });
+
+  })();
+</script>
 </body>
 </html>
-
-
