@@ -537,10 +537,8 @@
       <li><strong>Nur Tempo:</strong> RAID 0 — nur mit Backup!</li>
     </ul>
 
-    <img id="qrImg"
-     src=""
-     alt="QR Code"
-     style="width:120px;border:1px solid var(--border);border-radius:8px;padding:6px;background:var(--card)">
+    <img id="qrImg" width="120" height="120" alt="QR Code">
+
   </section>
 
   <footer role="contentinfo">
@@ -623,20 +621,16 @@
     document.querySelectorAll('.card').forEach(el => observer.observe(el));
 
     /* ---------- QR code generation ---------- */
-    document.addEventListener("DOMContentLoaded", () => {
-        const qrImg = document.getElementById("qrImg");
+    const FIXED_URL = "https://richnyanzu.github.io/raid";
+     const size = 300;
+     
+     const src = "https://api.qrserver.com/v1/create-qr-code/?size=" 
+                 + size + "x" + size 
+                 + "&data=" + encodeURIComponent(FIXED_URL);
+     
+     // Force reload even on CDN blockers:
+     qrImg.src = src + "&dummy=" + Date.now();
 
-        const FIXED_URL = "https://richnyanzu.github.io/raid";  
-
-        const size = 300;
-
-        // Reliable QR API
-        const src = "https://api.qrserver.com/v1/create-qr-code/"
-                  + "?size=" + size + "x" + size
-                  + "&data=" + encodeURIComponent(FIXED_URL);
-
-        qrImg.src = src;
-    });
 
     /* ---------- Accessibility: keyboard close mobile menu on ESC ---------- */
     window.addEventListener('keydown', function(e){
@@ -750,5 +744,6 @@
 </script>
 </body>
 </html>
+
 
 
