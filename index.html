@@ -223,6 +223,45 @@
 
   /* accessibility focus */
   a:focus, button:focus {outline:2px dashed var(--accent); outline-offset:3px}
+
+  .mode-switch {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 9999; /* über alles gestellt */
+}
+
+.mode-switch input {
+    display: none;
+}
+
+.mode-switch label {
+    width: 40px;
+    height: 20px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    display: block;
+    cursor: pointer;
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+
+.mode-switch label::after {
+    content: "";
+    width: 16px;
+    height: 16px;
+    background: var(--accent);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+#modeToggle:checked + label::after {
+    left: 22px;
+}
+
 </style>
 </head>
 <body data-theme="light">
@@ -288,6 +327,12 @@
     <hr style="border:none;border-top:1px solid var(--border);margin:8px 0">
     <button onclick="window.print()" style="padding:8px 12px;border-radius:8px;background:var(--accent);color:white;border:0;cursor:pointer">Drucken</button>
   </div>
+  
+  <!-- Mode Switch (immer sichtbar) -->
+<div class="mode-switch">
+    <input type="checkbox" id="modeToggle">
+    <label for="modeToggle"></label>
+</div>
 </header>
 
 <!-- ========================
@@ -627,6 +672,68 @@
     });
 
   })();
+
+(function(){
+  const THEME_KEY = 'raidguide_theme';
+  const body = document.body;
+
+  // support both toggle IDs if one exists
+  const toggles = [
+    document.getElementById('modeToggle'),
+    document.getElementById('themeToggle')
+  ].filter(Boolean);
+
+  // helper to apply theme
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      body.setAttribute('data-theme', 'dark');
+    } else {
+      body.setAttribute('data-theme', 'light');
+    }
+    // update all toggle inputs
+    toggles.forEach(t => { t.checked = (theme === 'dark'); });
+    try { localStorage.setItem(THEME_KEY, theme); } catch(e) {}
+  }
+
+  // read saved theme or system preference
+  function initTheme() {
+    let saved = null;
+    try { saved = localStorage.getItem(THEME_KEY); } catch(e) {}
+    if (saved === 'dark' || saved === 'light') {
+      applyTheme(saved);
+      return;
+    }
+    // fallback: respect system preference
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark ? 'dark' : 'light');
+  }
+
+  // attach listeners to toggles
+  toggles.forEach(t => {
+    t.addEventListener('change', function(){
+      applyTheme(this.checked ? 'dark' : 'light');
+    });
+  });
+
+  // init
+  initTheme();
+
+  // optional: observe system preference changes and auto-switch only if user hasn't explicitly set a preference
+  // If you prefer to always respect system changes (unless user set an explicit saved value), uncomment:
+  /*
+  try {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    mq.addEventListener('change', (e) => {
+      let saved = null;
+      try { saved = localStorage.getItem(THEME_KEY); } catch(e) {}
+      if (!saved) {
+        applyTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+  } catch(e){}
+  */
+
+})();
 </script>
 </body>
 </html>
