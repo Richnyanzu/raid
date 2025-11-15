@@ -645,6 +645,20 @@
         closeMobile();
       }
     });
+     document.addEventListener("DOMContentLoaded", () => {
+       const qrImg = document.getElementById("qrImg");
+       if (!qrImg) return;
+     
+       const url = window.location.href;
+       const size = 300;
+     
+       // Reliable Google QR API URL
+       const src = "https://chart.googleapis.com/chart?cht=qr&chs=" 
+                   + size + "x" + size 
+                   + "&chl=" + encodeURIComponent(url);
+     
+       qrImg.src = src;
+     });
 
     /* ---------- Smooth anchor focusing for keyboard users ---------- */
     document.querySelectorAll('a[href^="#"]').forEach(a=>{
@@ -737,3 +751,4 @@
 </script>
 </body>
 </html>
+
